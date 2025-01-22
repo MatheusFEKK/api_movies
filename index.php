@@ -4,53 +4,74 @@
 
     switch ($_SERVER['REQUEST_METHOD']) {
         case 'GET':
+            $filmes = filmeModel::getAll();
+            echo '<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">ID</th>
+      <th scope="col">Nome do Filme</th>
+      <th scope="col">Genero do Filme</th>
+      <th scope="col">Ano de Lançamento</th>
+    </tr>
+  </thead>
+  <tbody>';
+            foreach ($filmes as $index => $movies)
+            {
+                echo '<div> <table class="table">
+                    <tr>
+                    <th scope="row">1</th>
+                    <td>'.$movies['titulo'].'</td>
+                    <td>'.$movies['genero'].'</td>
+                    <td>'.$movies['ano'].'</td>
+                    <td><a href="index.php?</td>
+                    </tr>
+                ';
+            }
+            echo '</div></tbody>
+</table><br>';
             if (isset($_GET['searchMovieId']))
             {
                 $movie = $_GET['searchMovieId'];
                 $response = filmeModel::getSpecific($movie);
-                echo '<div class="d-flex justify-content-center">Nome do filme: '.$response[1]. '<br>Genêro do filme: '.$response[2]. '<br>Ano de lançamento:'. $response[3].'</div>';
+                echo 'Nome do filme: '.$response[1]. '<br>Genêro do filme: '.$response[2]. '<br>Ano de lançamento:'. $response[3];
+                return;
             }else {
-                echo json_encode(['message' => 'Movie not founded, showing the movies that are in the database']);
-                $filmes = filmeModel::getAll();
+                echo json_encode(['mess age' => 'Movie not founded, showing the movies that are in the database']);
             }
             
             break;
         case 'POST':
-            $dados = json_decode(file_get_contents('php://input'), true);
-            
-                if (isset($dados['titulo'], $dados['genero'], $dados['ano']))
+                if (isset($_POST['nameMovie'], $_POST['genreMovie'], $_POST['yearMovie']))
                 {
-                    if (filmeModel::registerMovie($dados['titulo'], $dados['genero'], $dados['ano']))
+                    if (filmeModel::registerMovie($_POST['nameMovie'], $_POST['genreMovie'], $_POST['yearMovie']))
                     {
                         http_response_code(201);
-                        echo json_encode(['message' => 'Acquired with success']);
+                        echo 'Acquired with success';
                     }else {
                         http_response_code(400);
-                        echo json_encode(['message' => 'Error occured trying to register the Movie']);
+                        echo 'Error occured trying to register the Movie';
                     }
                 }
             else {
                 http_response_code(400);
-                echo json_encode($dados);
-                echo json_encode(['message' => 'The data offered is incorrect']);
+                echo 'The data offered is incorrect';
             }
 
             break;
-        case 'PUT':
-            $dados = json_decode(file_get_contents('php://input'), true);
-            if (isset($dados['id'], $dados['titulo'], $dados['genero'], $dados['ano']))
+        case 'POST':
+            if (isset($_POST['idAtualizar'], $_POST['nameMovieUpdate'], $_POST['genreMovieUpdate'], $_POST['yearMovieUpdate']))
             {
-                if (filmeModel::updateMovie($dados['id'], $dados['titulo'], $dados['genero'], $dados['ano']))
+                if (filmeModel::updateMovie($_POST['idAtualizar'], $_POST['nameMovieUpdate'], $_POST['genreMovieUpdate'], $_POST['yearMovieUpdate']))
                 {
-                    echo json_encode(['message' => 'Movie updated with success']);
+                    echo 'Movie updated with success';
                 }else {
                     http_response_code(400);
-                    echo json_encode(['message' => 'Error trying to update the movie']);
+                    echo 'Error trying to update the movie';
                 }
             }
             else {
                 http_response_code(400);
-                echo json_encode(['message' => 'The data to update is incorrect']);
+                echo 'The data to update is incorrect';
             }
 
             break;
@@ -87,24 +108,37 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     </head>
     <body>
-        <div class="container d-flex justify-content-center">
+        <div class="container d-flex justify-content-center gap-3">
             <div class="searchMovie">
                 <h6>Procurar Filme</h6>
-                <form action="" method="GET">
-                    <input type="text" name="searchMovieId" placeholder="Nome do Filme">
-                    <button class="btn btn-primary">Procurar</button>
-                </form>
+                    <input oninput="searchMovie()" type="text" placeholder="Nome do Filme" id="searchMovieId">
+                    <div id="result">
+                    </div>
+                </div><br>
 
                 <div class="insertMovie">
                     <form action="" method="POST">
-                        <input type="text" name="nameMovie">
-                        <input type="text" name="genreMovie">
-                        <input type="text" name="yearMovie">
-                        <button class="btn btn-primary"></button>
+                        <h6>Cadastrar Filme</h6>
+                        <input class="shadow" type="text" name="nameMovie" placeholder="Nome do Filme" style="width: 15rem; height:3rem; border-radius: 0.5rem; border:none;"><br><br>
+                        <input class="shadow" type="text" name="genreMovie" placeholder="Genero do Filme" style="width: 15rem; height:3rem; border-radius: 0.5rem; border:none;"><br><br>
+                        <input class="shadow" type="text" name="yearMovie" placeholder="Ano de Lançamento" style="width: 15rem; height:3rem; border-radius: 0.5rem; border:none;"><br><br>
+                        <button class="btn btn-primary float-end">Inserir</button>
                     </form>
                 </div>
+
+            <div class="updateMovie">
+                <form action="" method="POST">
+                    <h6>Atualizar Filme</h6>
+                    <input class="shadow" type="text" name="idAtualizar" placeholder="ID do Filme" style="width: 15rem; height:3rem; border-radius:0.5rem; border:none;"><br><br>
+                    <input class="shadow" type="text" name="nameMovieUpdate" placeholder="Titulo Atualizar" style="width: 15rem; height:3rem; border-radius:0.5rem; border:none;"><br><br>
+                    <input class="shadow" type="text" name="genreMovieUpdate" placeholder="Genero Atualizar" style="width: 15rem; height:3rem; border-radius:0.5rem; border:none;"><br><br>
+                    <input class="shadow" type="text" name="yearMovieUpdate" placeholder="Ano de Lançamento Atualizar" style="width: 15rem; height:3rem; border-radius:0.5rem; border:none;"><br><br>
+                    <button class="btn btn-primary">Atualizar</button>
+                </form>
             </div>
 
         </div>
+
+        <script src="js/script.js"></script>
     </body>
     </html>

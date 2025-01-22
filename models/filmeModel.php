@@ -14,7 +14,7 @@ use FTP\Connection;
 
             $dados = [];
 
-            while ($row = $result->fetch_row())
+            while ($row = $result->fetch_assoc())
             {
                 $dados[] = $row;
             }
@@ -23,10 +23,10 @@ use FTP\Connection;
         }
 
         // GET (ID)
-        public static function getSpecific($id)
+        public static function getSpecific($titulo)
         {
             $db = new database();
-            $query = "SELECT * FROM filmes WHERE id = $id";
+            $query = "SELECT * FROM filmes WHERE titulo LIKE '%$titulo%'";
             $result = $db->query($query);
 
             return $result->fetch_row();
