@@ -23,13 +23,13 @@ use FTP\Connection;
         }
 
         // GET (ID)
-        public static function getSpecific($titulo)
+        public static function getSpecific($id)
         {
             $db = new database();
-            $query = "SELECT * FROM filmes WHERE titulo LIKE '%$titulo%'";
+            $query = "SELECT * FROM filmes WHERE id = $id";
             $result = $db->query($query);
 
-            return $result->fetch_row();
+            return $result->fetch_assoc();
         }
 
         // INSERT
